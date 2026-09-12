@@ -1,5 +1,11 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+if (!API_URL) {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL is not configured",
+  );
+}
+
 const api = async <T>(
   endpoint: string,
   options?: RequestInit,
@@ -15,7 +21,9 @@ const api = async <T>(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Something went wrong");
+    throw new Error(
+      data.message || "Something went wrong",
+    );
   }
 
   return data;
