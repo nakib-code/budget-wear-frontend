@@ -1,9 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 
-import { Product } from "@/types/product";
 import { CartItem } from "@/types/cart";
+import { Product } from "@/types/product";
 
 interface ProductCardProps {
   product: Product;
@@ -49,58 +50,63 @@ export default function ProductCard({
   }
 
   return (
-    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-shadow duration-300 sm:rounded-2xl sm:hover:shadow-md">
       {/* Product Image */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-background sm:aspect-auto sm:h-[420px]">
-        <img
+      <div className="relative aspect-[4/5] overflow-hidden bg-slate-100 sm:aspect-[3/4] sm:h-[420px]">
+        <Image
           src={product.imageUrl}
           alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
+          fill
+          priority={false}
+          sizes="(max-width: 639px) 50vw, (max-width: 1023px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 sm:group-hover:scale-[1.03]"
         />
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/15 to-transparent sm:h-20" />
       </div>
 
-      {/* Product Info */}
-      <div className="flex flex-1 flex-col p-3.5 sm:p-5">
-        <div className="flex items-start justify-between gap-2.5">
-          <div className="min-w-0">
-            <h2 className="truncate text-sm font-bold leading-5 text-foreground sm:text-xl sm:leading-6">
+      {/* Product Content */}
+      <div className="flex flex-1 flex-col p-2.5 sm:p-5">
+        {/* Product Name + Price */}
+        <div className="flex items-start justify-between gap-1.5 sm:gap-2">
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-[12px] font-bold leading-4.5 text-foreground sm:text-lg sm:leading-6">
               {product.name}
             </h2>
 
-            <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted sm:text-xs">
+            <p className="mt-0.5 text-[7px] font-semibold uppercase tracking-[0.15em] text-muted sm:mt-1 sm:text-[10px]">
               Men&apos;s Wear
             </p>
           </div>
 
-          <p className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-sm font-extrabold text-primary sm:px-3 sm:py-1.5 sm:text-lg">
+          <p className="shrink-0 text-[12px] font-extrabold leading-5 text-primary sm:text-lg sm:leading-6">
             ৳{product.price}
           </p>
         </div>
 
+        {/* Description */}
         {product.description && (
-          <p className="mt-2 line-clamp-2 text-[11px] leading-4.5 text-muted sm:mt-3 sm:text-sm sm:leading-6">
+          <p className="mt-1.5 line-clamp-2 text-[9px] leading-3.5 text-muted sm:mt-2.5 sm:text-sm sm:leading-5">
             {product.description}
           </p>
         )}
 
         {/* Size Selection */}
-        <div className="mt-auto pt-4 sm:pt-6">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-bold text-foreground sm:text-sm">
-              Select Size
+        <div className="mt-auto pt-3 sm:pt-5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[9px] font-bold text-foreground sm:text-sm">
+              Size
             </p>
 
             {selectedInventory && (
-              <p className="text-[10px] font-medium text-muted sm:text-xs">
+              <p className="text-[8px] font-medium text-muted sm:text-xs">
                 {selectedInventory.stock} available
               </p>
             )}
           </div>
 
-          <div className="mt-2.5 flex flex-wrap gap-2">
+          {/* Size Buttons */}
+          <div className="mt-1.5 flex flex-wrap gap-1 sm:mt-2 sm:gap-2">
             {availableSizes.map((inventory) => {
               const isSelected =
                 selectedSize === inventory.size;
@@ -109,11 +115,13 @@ export default function ProductCard({
                 <button
                   key={inventory.id}
                   type="button"
-                  onClick={() => setSelectedSize(inventory.size)}
+                  onClick={() =>
+                    setSelectedSize(inventory.size)
+                  }
                   aria-pressed={isSelected}
-                  className={`min-h-10 min-w-11 rounded-lg border px-3 text-xs font-bold transition-all duration-200 active:scale-95 sm:min-h-11 sm:min-w-12 sm:text-sm ${
+                  className={`h-7 min-w-8 rounded-md border px-1.5 text-[9px] font-bold leading-none transition-colors duration-200 active:scale-95 sm:h-10 sm:min-w-11 sm:rounded-lg sm:px-2.5 sm:text-xs ${
                     isSelected
-                      ? "border-primary bg-primary text-white shadow-sm"
+                      ? "border-primary bg-primary text-white"
                       : "border-border bg-white text-foreground hover:border-primary hover:text-primary"
                   }`}
                 >
@@ -127,7 +135,7 @@ export default function ProductCard({
           <button
             type="button"
             onClick={handleSelect}
-            className="mt-4 min-h-11 w-full rounded-xl bg-primary px-4 py-3 text-xs font-bold text-white shadow-sm transition-all duration-200 hover:bg-primary-hover hover:shadow-md active:scale-[0.99] sm:mt-5 sm:min-h-12 sm:text-sm"
+            className="mt-2.5 h-9 w-full rounded-lg bg-primary px-2 text-[9px] font-bold text-white shadow-sm transition-colors duration-200 hover:bg-primary-hover hover:shadow-md active:scale-[0.98] sm:mt-4 sm:h-11 sm:rounded-xl sm:px-4 sm:text-sm"
           >
             Select Product
           </button>

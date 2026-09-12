@@ -1,16 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import AdminHeader from "@/components/admin/AdminHeader";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
-import {
-  deleteProduct,
-  getProducts,
-} from "@/services/product.service";
-
+import { getProducts } from "@/services/product.service";
 import { Product } from "@/types/product";
 
 export default function ProductsPage() {
@@ -18,12 +15,7 @@ export default function ProductsPage() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const [deletingId, setDeletingId] =
-    useState<number | null>(null);
-
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -39,10 +31,7 @@ export default function ProductsPage() {
         const data = await getProducts();
         setProducts(data);
       } catch (error) {
-        console.error(
-          "Failed to load products:",
-          error,
-        );
+        console.error("Failed to load products:", error);
 
         setError(
           error instanceof Error
@@ -56,42 +45,6 @@ export default function ProductsPage() {
 
     loadProducts();
   }, [router]);
-
-  const handleDelete = async (productId: number) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this product?",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    setError("");
-    setDeletingId(productId);
-
-    try {
-      await deleteProduct(productId);
-
-      setProducts((currentProducts) =>
-        currentProducts.filter(
-          (product) => product.id !== productId,
-        ),
-      );
-    } catch (error) {
-      console.error(
-        "Failed to delete product:",
-        error,
-      );
-
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Failed to delete product",
-      );
-    } finally {
-      setDeletingId(null);
-    }
-  };
 
   if (loading) {
     return (
@@ -121,6 +74,7 @@ export default function ProductsPage() {
 
         <main className="px-4 py-7 sm:px-6 sm:py-10">
           <div className="mx-auto max-w-7xl">
+            {/* Page Header */}
             <div className="mb-7 flex items-end justify-between gap-4 sm:mb-9">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
@@ -147,12 +101,14 @@ export default function ProductsPage() {
               </button>
             </div>
 
+            {/* Error */}
             {error && (
               <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
                 {error}
               </div>
             )}
 
+            {/* Products */}
             {products.length === 0 ? (
               <div className="rounded-2xl border border-border bg-white px-5 py-14 text-center shadow-sm">
                 <p className="text-sm font-semibold text-foreground sm:text-base">
@@ -189,28 +145,25 @@ export default function ProductsPage() {
                         inventory.stock > 0,
                     );
 
-                  const isDeleting =
-                    deletingId === product.id;
-
                   return (
                     <article
                       key={product.id}
-                      className={`overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition ${
-                        isDeleting
-                          ? "opacity-60"
-                          : ""
-                      }`}
+                      className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
                     >
-                      <div className="aspect-[4/3] overflow-hidden bg-background">
-                        <img
+                      {/* Product Image */}
+                      <div className="relative aspect-[4/3] overflow-hidden bg-background">
+                        <Image
                           src={product.imageUrl}
                           alt={product.name}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
+                          fill
+                          sizes="(max-width: 639px) 100vw, (max-width: 1279px) 50vw, 33vw"
+                          className="object-cover"
                         />
                       </div>
 
+                      {/* Product Content */}
                       <div className="p-4 sm:p-5">
+                        {/* Name + Price + Status */}
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <h2 className="truncate text-base font-bold text-foreground sm:text-lg">
@@ -235,6 +188,7 @@ export default function ProductsPage() {
                           </span>
                         </div>
 
+                        {/* Size & Stock */}
                         <div className="mt-4 border-t border-border pt-4">
                           <p className="text-xs font-semibold text-muted">
                             Size & Stock
@@ -264,33 +218,26 @@ export default function ProductsPage() {
                           </p>
                         </div>
 
-                        <div className="mt-5 grid grid-cols-2 gap-2">
+                        {/* Actions */}
+                        <div className="mt-5">
                           <button
                             type="button"
-                            disabled={isDeleting}
                             onClick={() =>
                               router.push(
                                 `/admin/products/${product.id}/edit`,
                               )
                             }
-                            className="min-h-10 rounded-lg border border-border px-3 text-xs font-bold text-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-11 sm:text-sm"
+                            className="min-h-10 w-full rounded-lg border border-border px-3 text-xs font-bold text-foreground transition hover:border-primary hover:bg-primary/5 hover:text-primary sm:min-h-11 sm:rounded-xl sm:text-sm"
                           >
-                            Edit
-                          </button>
-
-                          <button
-                            type="button"
-                            disabled={isDeleting}
-                            onClick={() =>
-                              handleDelete(product.id)
-                            }
-                            className="min-h-10 rounded-lg border border-red-200 px-3 text-xs font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-11 sm:text-sm"
-                          >
-                            {isDeleting
-                              ? "Deleting..."
-                              : "Delete"}
+                            Edit Product
                           </button>
                         </div>
+
+                        {/* Inventory Note */}
+                        <p className="mt-3 text-center text-[10px] leading-4 text-muted sm:text-xs">
+                          To change product stock, use the
+                          Inventory section.
+                        </p>
                       </div>
                     </article>
                   );
