@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { adminLogin } from "@/services/auth.service";
+import Image from "next/image";
 
 export default function AdminLoginForm() {
   const router = useRouter();
@@ -14,9 +15,7 @@ export default function AdminLoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setError("");
@@ -28,18 +27,11 @@ export default function AdminLoginForm() {
         password,
       });
 
-      localStorage.setItem(
-        "adminToken",
-        response.data.accessToken,
-      );
+      localStorage.setItem("adminToken", response.data.accessToken);
 
       router.push("/admin/dashboard");
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Login failed",
-      );
+      setError(error instanceof Error ? error.message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -49,8 +41,15 @@ export default function AdminLoginForm() {
     <div className="w-full max-w-md">
       <div className="rounded-2xl border border-border bg-white p-6 shadow-xl sm:p-8">
         <div className="mb-8 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-lg font-extrabold text-white">
-            B
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg sm:h-11 sm:w-11 sm:rounded-xl">
+            <Image
+              src="/web-app-manifest-192x192.png"
+              alt="Budget Wear logo"
+              width={44}
+              height={44}
+              priority
+              className="h-full w-full object-contain"
+            />
           </div>
 
           <h1 className="mt-4 text-2xl font-extrabold text-foreground">
@@ -68,10 +67,7 @@ export default function AdminLoginForm() {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5"
-        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label
               htmlFor="email"
@@ -85,9 +81,7 @@ export default function AdminLoginForm() {
               type="email"
               required
               value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
+              onChange={(event) => setEmail(event.target.value)}
               placeholder="admin@example.com"
               className="h-12 w-full rounded-xl border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
             />
@@ -106,9 +100,7 @@ export default function AdminLoginForm() {
               type="password"
               required
               value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
+              onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
               className="h-12 w-full rounded-xl border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
             />

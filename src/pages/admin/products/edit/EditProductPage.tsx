@@ -17,9 +17,9 @@ import { Product } from "@/types/product";
 
 export default function EditProductPage() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams<{ id: string }>();
 
-  const productId = Number(params.id);
+  const productId = Number(params?.id);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -45,12 +45,22 @@ export default function EditProductPage() {
         return;
       }
 
+      if (!Number.isFinite(productId)) {
+        setError("Invalid product ID.");
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await api<{
           success: boolean;
           message: string;
           data: Product;
-        }>(`/products/${productId}`);
+        }>(`/products/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         setProduct(response.data);
         setName(response.data.name);
@@ -70,10 +80,16 @@ export default function EditProductPage() {
       }
     };
 
-    if (!Number.isNaN(productId)) {
-      loadProduct();
-    }
+    loadProduct();
   }, [productId, router]);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const handleImageChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -99,13 +115,7 @@ export default function EditProductPage() {
 
     const previewUrl = URL.createObjectURL(file);
 
-    setImagePreview((currentPreview) => {
-      if (currentPreview.startsWith("blob:")) {
-        URL.revokeObjectURL(currentPreview);
-      }
-
-      return previewUrl;
-    });
+    setImagePreview(previewUrl);
   };
 
   const handleSubmit = async (
@@ -114,6 +124,11 @@ export default function EditProductPage() {
     event.preventDefault();
 
     setError("");
+
+    if (!Number.isFinite(productId)) {
+      setError("Invalid product ID.");
+      return;
+    }
 
     if (!name.trim()) {
       setError("Product name is required.");
@@ -166,6 +181,8 @@ export default function EditProductPage() {
 
       router.push("/admin/products");
     } catch (error) {
+      console.error("Failed to update product:", error);
+
       setError(
         error instanceof Error
           ? error.message
@@ -195,13 +212,13 @@ export default function EditProductPage() {
       <main className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="text-center">
           <p className="text-base font-semibold text-foreground">
-            Product not found.
+            {error || "Product not found."}
           </p>
 
           <button
             type="button"
             onClick={() => router.push("/admin/products")}
-            className="mt-4 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white"
+            className="mt-4 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-hover"
           >
             Back to Products
           </button>
