@@ -330,7 +330,6 @@ export default function HomePage() {
         </div>
       )}
       {/* Selection Modal */}
-      ```tsx
       {showSelectionModal && (
         <SelectionModal
           onBuyNow={handleBuyNow}
